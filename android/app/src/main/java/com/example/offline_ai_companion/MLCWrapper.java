@@ -30,10 +30,10 @@ public class MLCWrapper implements MethodChannel.MethodCallHandler, EventChannel
     // Native library loading
     static {
         try {
-            System.loadLibrary("tvm4j_runtime_packed");
-            Log.i(TAG, "✅ TVM runtime library loaded successfully");
+            System.loadLibrary("mlc_tvm_wrapper");
+            Log.i(TAG, "✅ MLC-LLM wrapper library loaded successfully");
         } catch (UnsatisfiedLinkError e) {
-            Log.e(TAG, "❌ Failed to load TVM runtime library", e);
+            Log.e(TAG, "❌ Failed to load MLC-LLM wrapper library", e);
         }
     }
     
