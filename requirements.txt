@@ -1,0 +1,31 @@
+# MLC-LLM Development Environment Requirements
+# This file contains the Python packages needed for MLC-LLM development and testing
+
+# Core MLC-LLM packages
+mlc-llm==0.20.0.dev0
+apache-tvm==0.10.0
+apache-tvm-ffi==0.1.0b4
+
+# Build dependencies
+cmake==4.1.0
+numpy==1.26.4
+
+# Optional: PyTorch (for some MLC-LLM features)
+# torch>=1.9.0
+
+# Development tools
+# jupyter>=1.0.0
+# matplotlib>=3.0.0
+
+# Note: These packages are installed via pip in a conda environment
+# Installation command:
+# conda create -n mlc python=3.10
+# conda activate mlc
+# pip install -r requirements.txt
+
+# For Android development, you also need:
+# - Flutter SDK
+# - Android SDK
+# - NDK (Native Development Kit)
+# - CMake for Android builds
+

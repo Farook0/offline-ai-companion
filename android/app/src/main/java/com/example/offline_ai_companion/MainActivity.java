@@ -28,7 +28,7 @@ import java.lang.reflect.Type;
 // No high-level wrappers, just direct native calls to TVM runtime
 
 public class MainActivity extends FlutterActivity {
-    private static final String CHANNEL = "mlc_llm_plugin";
+    private static final String CHANNEL = "mlc_llm_channel";
     private static final String TAG = "MLCLLMActivity";
     
     // MLC-LLM integration (exact same pattern as Llamao)

@@ -1,643 +1,434 @@
-# 🤖 Offline AI Companion
+# Offline AI Companion - MLC-LLM Flutter App
 
-A **privacy-first, cross-platform Flutter application** that provides a fully offline AI assistant experience using local language models. This app supports multiple AI models and works entirely without internet connectivity, ensuring complete privacy and data security.
+A Flutter application that integrates MLC-LLM (Machine Learning Compilation for Large Language Models) to provide offline AI chat capabilities on Android devices.
 
-## 🌟 Key Features
-
-### 🚀 **Performance & Privacy**
-- **100% Offline Operation**: No internet required for AI responses
-- **GPU Acceleration**: MLC-LLM integration for 5-10x faster performance
-- **Local Processing**: All AI inference happens on your device
-- **Privacy-First**: Your conversations never leave your device
-- **Multiple Model Support**: Switch between different AI models
-
-### 💬 **Chat Interface**
-- **Modern UI**: Beautiful, responsive Material Design 3 interface
-- **Session Management**: Create, manage, and organize chat sessions
-- **Message History**: Persistent chat history with local SQLite storage
-- **Markdown Support**: Rich text formatting in AI responses
-- **Code Highlighting**: Syntax highlighting for code blocks
-- **Real-time Streaming**: See AI responses as they're generated
-
-### ⚙️ **Customization & Settings**
-- **Model Configuration**: Adjust temperature, max tokens, top-p, top-k, and repetition penalty
-- **Theme Support**: Light and dark mode with system theme detection
-- **Font Scaling**: Adjustable text size for accessibility
-- **Performance Settings**: Metal acceleration for iOS/macOS, GPU optimization
-
-## 🛠️ How the App Works
-
-### **Architecture Overview**
-
-The app uses a **multi-layered architecture** with the following components:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Flutter UI Layer                         │
-├─────────────────────────────────────────────────────────────┤
-│                 Provider State Management                   │
-├─────────────────────────────────────────────────────────────┤
-│                   Service Layer                             │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
-│  │ MLC Service │ │ Chat Service│ │Model Service│           │
-│  └─────────────┘ └─────────────┘ └─────────────┘           │
-├─────────────────────────────────────────────────────────────┤
-│                 Native Platform Layer                       │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
-│  │   MLC-LLM   │ │  llama.cpp  │ │   SQLite    │           │
-│  │ (Primary)   │ │ (Fallback)  │ │ (Storage)   │           │
-│  └─────────────┘ └─────────────┘ └─────────────┘           │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### **AI Model Processing Flow**
-
-1. **Model Loading**: 
-   - App loads MLC-LLM models (primary) or llama.cpp models (fallback)
-   - Models are cached locally for faster subsequent loads
-   - GPU acceleration is automatically detected and utilized
-
-2. **Chat Processing**:
-   - User input is processed through the selected AI model
-   - Responses are generated using local inference
-   - Real-time streaming provides immediate feedback
-   - Messages are stored in local SQLite database
-
-3. **Data Management**:
-   - All chat history stored locally
-   - Model files cached for performance
-   - Automatic cleanup of old data
-   - Export functionality for backup
-
-## 🚀 Quick Setup Guide (Android-Only Development)
-
-### **Step 1: Install Required Software**
-
-#### **Install Homebrew (if not installed)**
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-#### **Install Flutter SDK**
-```bash
-# Install Flutter via Homebrew
-brew install flutter
-
-# Verify installation
-flutter doctor
-```
-
-#### **Install Android Studio (Required for Android development)**
-```bash
-# Download from https://developer.android.com/studio
-# Or install via Homebrew
-brew install --cask android-studio
-```
-
-#### **Install Cursor (recommended IDE)**
-```bash
-# Download Cursor from https://cursor.sh/
-# Or install via Homebrew
-brew install --cask cursor
-```
-
-#### **Install Java Development Kit (JDK)**
-```bash
-# Install OpenJDK 17 (required for Android development)
-brew install openjdk@17
-
-# Set JAVA_HOME
-echo 'export JAVA_HOME=/opt/homebrew/opt/openjdk@17' >> ~/.zshrc
-echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
-source ~/.zshrc
-```
-
-### **Step 2: Setup Android Development Environment**
-
-#### **Install Android SDK**
-```bash
-# Open Android Studio and install Android SDK
-# Or install via command line
-brew install --cask android-commandlinetools
-
-# Set ANDROID_HOME
-echo 'export ANDROID_HOME=$HOME/Library/Android/sdk' >> ~/.zshrc
-echo 'export PATH=$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH' >> ~/.zshrc
-source ~/.zshrc
-```
-
-#### **Install Android SDK Components**
-```bash
-# Install required SDK components
-sdkmanager "platform-tools" "platforms;android-35" "build-tools;34.0.0"
-sdkmanager "ndk;25.2.9519653" "cmake;3.22.1"
-```
-
-### **Step 3: Clone and Setup Project**
+## 🚀 Quick Start
 
 ```bash
-# Clone your repository
-git clone <your-github-repo-url>
+# Clone the repository
+git clone <repository-url>
 cd offline_ai_companion
 
-# Install Flutter dependencies
+# Set up Python environment (for testing MLC-LLM)
+conda create -n mlc python=3.10.18
+conda activate mlc
+pip install -r requirements.txt
+
+# Download MLC-LLM libraries (REQUIRED for Android build)
+chmod +x setup_mlc_libs.sh
+./setup_mlc_libs.sh
+
+# Set up Flutter and build
 flutter pub get
+flutter build apk --release
 ```
 
-### **Step 4: Download AI Models**
+## 📋 Table of Contents
+
+- [System Requirements](#system-requirements)
+- [Dependencies](#dependencies)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Building APK](#building-apk)
+- [Project Structure](#project-structure)
+- [Development](#development)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+
+## 🖥️ System Requirements
+
+### Development Environment
+- **Operating System**: macOS 10.15+ / Linux Ubuntu 18.04+ / Windows 10+
+- **Python**: 3.10.18 (exact version tested)
+- **Flutter**: 3.32.8 (exact version tested)
+- **Dart**: 3.8.1 (comes with Flutter)
+- **Android SDK**: API Level 21+ (Android 5.0+)
+- **Android NDK**: r21e or later
+- **CMake**: 4.1.0 (exact version tested)
+- **Conda**: 4.10.0+
+
+### Target Device
+- **Android**: API Level 21+ (Android 5.0+)
+- **Architecture**: ARM64 (aarch64)
+- **RAM**: 4GB+ recommended
+- **Storage**: 2GB+ free space for models
+
+## 📦 Dependencies
+
+### ⚠️ IMPORTANT: MLC Libraries Required
+**Before building the APK, you MUST have the MLC-LLM libraries:**
 
 ```bash
-# Create models directory
-mkdir -p assets/models/
-
-# Download MLC-LLM models (recommended)
-cd assets/models/
-curl -L -o Llama-3.2-1B-Instruct-q4f16_0-MLC.zip https://huggingface.co/mlc-ai/Llama-3.2-1B-Instruct-q4f16_0-MLC/resolve/main/Llama-3.2-1B-Instruct-q4f16_0-MLC.zip
-unzip Llama-3.2-1B-Instruct-q4f16_0-MLC.zip
-cd ../..
+# Run the setup script to check and guide you through library setup
+chmod +x setup_mlc_libs.sh
+./setup_mlc_libs.sh
 ```
 
-> **Note**: Model files are excluded from git (see .gitignore) to keep the repository size small. You need to download them separately after cloning the repository.
+**Required Libraries:**
+- `libtvm_runtime.so` (Apache TVM runtime for Android ARM64)
+- `libmlc_llm.so` (MLC-LLM library for Android ARM64)
 
-### **Step 5: Run the App**
+**Note:** These libraries are NOT available as pre-built downloads. You need to:
+1. **Build from source** (recommended for development)
+2. **Use MLC-LLM's bundled libraries** (if available)
+3. **Get from a custom build** (if you have access)
 
-```bash
-# Check available devices
-flutter devices
+**Without these libraries, the app will not work!**
 
-# Run on Android device/emulator
-flutter run -d android
+### ✅ Tested Versions (Exact)
+The following versions have been tested and verified to work together:
 
-# Or run on specific Android device
-flutter run -d <android-device-id>
+| Component | Version | Notes |
+|-----------|---------|-------|
+| Python | 3.10.18 | Exact version tested |
+| Flutter | 3.32.8 | Stable channel |
+| Dart | 3.8.1 | Comes with Flutter |
+| MLC-LLM | 0.20.0.dev0 | Development version |
+| Apache TVM | 0.10.0 | Runtime engine |
+| Apache TVM FFI | 0.1.0b4 | Foreign Function Interface |
+| NumPy | 1.26.4 | Compatible with TVM |
+| CMake | 4.1.0 | Build system |
+
+### Python Dependencies (Development/Testing)
+```txt
+# Core MLC-LLM packages
+mlc-llm==0.20.0.dev0
+apache-tvm==0.10.0
+apache-tvm-ffi==0.1.0b4
+
+# Build dependencies
+cmake==4.1.0
+numpy==1.26.4
+
+# System dependencies
+setuptools>=40.0.0
+wheel>=0.30.0
 ```
 
-### **Step 6: Verify Everything Works**
-
-```bash
-# Check Flutter installation
-flutter doctor
-
-# Check available devices
-flutter devices
-
-# Test the app
-flutter test
-
-# Build Android APK
-flutter build apk --debug
-```
-
-## ✅ **Complete Setup Checklist**
-
-- [ ] **Homebrew** installed
-- [ ] **Flutter SDK** installed and verified (`flutter doctor`)
-- [ ] **Android Studio** installed with Android SDK
-- [ ] **Java JDK 17** installed and JAVA_HOME set
-- [ ] **Android SDK** installed with required components
-- [ ] **Android NDK** installed for native code compilation
-- [ ] **Cursor** installed with Flutter extension
-- [ ] **Repository** cloned from GitHub
-- [ ] **Flutter dependencies** installed (`flutter pub get`)
-- [ ] **AI models** downloaded and extracted
-- [ ] **App runs** successfully on Android (`flutter run -d android`)
-
-## 🔧 **Troubleshooting Common Issues**
-
-### **Flutter Doctor Issues**
-```bash
-# If flutter doctor shows Android SDK issues:
-flutter doctor --android-licenses
-flutter config --android-sdk $ANDROID_HOME
-
-# Accept Android licenses
-yes | sdkmanager --licenses
-```
-
-### **Android SDK Issues**
-```bash
-# If Android SDK is not found:
-# 1. Open Android Studio
-# 2. Go to Tools > SDK Manager
-# 3. Install Android SDK Platform 35
-# 4. Install Android SDK Build-Tools 34.0.0
-# 5. Install Android NDK 25.2.9519653
-```
-
-### **Java/JDK Issues**
-```bash
-# If Java is not found:
-brew install openjdk@17
-echo 'export JAVA_HOME=/opt/homebrew/opt/openjdk@17' >> ~/.zshrc
-source ~/.zshrc
-
-# Verify Java installation
-java -version
-```
-
-### **Native Code Compilation Issues**
-```bash
-# If CMake/NDK compilation fails:
-# 1. Install NDK via Android Studio SDK Manager
-# 2. Set ANDROID_NDK_HOME environment variable
-echo 'export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653' >> ~/.zshrc
-source ~/.zshrc
-```
-
-### **Model Download Issues**
-```bash
-# If model download fails, try manual download:
-# 1. Visit: https://huggingface.co/mlc-ai/Llama-3.2-1B-Instruct-q4f16_0-MLC
-# 2. Download the zip file manually
-# 3. Extract to assets/models/ directory
-```
-
-### **Permission Issues**
-```bash
-# If you get permission errors:
-sudo chown -R $(whoami) /usr/local/bin /usr/local/lib /usr/local/sbin
-chmod u+w /usr/local/bin /usr/local/lib /usr/local/sbin
-```
-
----
-
-## 📋 Detailed Prerequisites & Installation
-
-### **System Requirements**
-
-#### **For Development**
-- **Flutter SDK**: 3.0.0 or higher
-- **Dart SDK**: 3.0.0 or higher
-- **Android Studio** or **Cursor** with Flutter extensions
-- **Git** for version control
-
-#### **For Running the App**
-- **iOS**: iOS 12.0+ (iPhone/iPad)
-- **Android**: Android 6.0+ (API 23+)
-- **macOS**: macOS 10.14+ (for development)
-- **Windows**: Windows 10+ (for development)
-
-## 📚 **Libraries & Technologies Used**
-
-### **Programming Languages**
-- **Dart**: Primary language for Flutter app development
-- **Kotlin/Java**: Android native code and platform integration
-- **C++**: Native AI model integration (MLC-LLM, llama.cpp)
-
-### **Frameworks & Platforms**
-- **Flutter**: Cross-platform UI framework
-- **Android SDK**: Platform-specific Android development
-- **MLC-LLM**: High-performance AI inference framework
-- **llama.cpp**: Fallback AI inference library
-- **SQLite**: Local database for chat history
-- **CMake**: Native code build system
-- **Android NDK**: Native code compilation for Android
-
-### **Required Libraries & Dependencies**
-
-The app uses the following key libraries (automatically installed via `pubspec.yaml`):
-
-#### **Core Dependencies**
+### Flutter Dependencies
 ```yaml
-# State Management
-provider: ^6.1.1                    # Flutter state management
+# pubspec.yaml
+dependencies:
+  flutter: ^3.32.8
+  provider: ^6.1.1
+  path_provider: ^2.1.1
+  shared_preferences: ^2.2.2
+  sqflite: ^2.3.0
+  permission_handler: ^11.0.1
+  device_info_plus: ^9.1.1
 
-# Local Storage
-shared_preferences: ^2.2.2          # App settings storage
-sqflite: ^2.3.0                     # Local database
-path: ^1.8.3                        # File path utilities
-path_provider: ^2.1.1               # Platform-specific paths
-
-# UI & Animation
-flutter_markdown: ^0.6.18           # Markdown rendering
-flutter_animate: ^4.2.0+1           # Smooth animations
-flutter_staggered_animations: ^1.1.1 # Staggered animations
-shimmer: ^3.0.0                     # Loading effects
-flutter_svg: ^2.0.9                 # SVG support
-lottie: ^2.7.0                      # Lottie animations
-
-# Platform Integration
-permission_handler: ^11.0.1         # Device permissions
-device_info_plus: ^9.1.1            # Device information
-package_info_plus: ^4.2.0           # App package info
-
-# Utilities
-http: ^1.1.0                        # HTTP requests (for model downloads)
-intl: ^0.18.1                       # Internationalization
-uuid: ^4.2.1                        # Unique identifiers
-crypto: ^3.0.3                      # Cryptographic functions
-
-# Native Integration
-ffi: ^2.1.0                         # Foreign Function Interface
+dev_dependencies:
+  flutter_test: ^3.16.0
+  flutter_lints: ^3.0.0
 ```
 
-#### **Development Dependencies**
-```yaml
-flutter_test:
-  sdk: flutter
-flutter_lints: ^3.0.0               # Code quality and style
+### Native Dependencies (Android)
+```cmake
+# CMakeLists.txt
+target_link_libraries(mlc_tvm_wrapper
+    ${log-lib}
+    ${android-lib}
+    tvm_runtime
+    mlc_llm
+    dl
+    opencl
+    vulkan
+)
 ```
 
-### **Installation Steps**
+## 🏗️ Architecture
 
-#### **1. Clone the Repository**
+### High-Level Architecture
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Flutter UI    │    │   Dart Layer    │    │   Native Layer  │
+│                 │    │                 │    │                 │
+│ • Chat Screen   │◄──►│ • Providers     │◄──►│ • JNI Interface │
+│ • Model Screen  │    │ • Services      │    │ • C++ Wrapper   │
+│ • Settings      │    │ • Models        │    │ • MLC-LLM Libs  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+### Detailed Component Flow
+```
+Flutter App (Dart)
+    ↓
+Provider Pattern (State Management)
+    ↓
+Service Layer (MLC Service)
+    ↓
+JNI Interface (Method Channel)
+    ↓
+C++ Wrapper (mlc_tvm_wrapper.cpp)
+    ↓
+MLC-LLM Native Libraries (ARM64)
+    ↓
+TVM Runtime
+    ↓
+MLC Model Files (assets/models/)
+```
+
+### Key Components
+
+1. **Flutter Layer** (`lib/`)
+   - UI components and screens
+   - State management with Provider
+   - Business logic and services
+
+2. **Native Layer** (`android/app/src/main/cpp/`)
+   - JNI interface for Flutter communication
+   - C++ wrapper for MLC-LLM integration
+   - CMake build configuration
+
+3. **Model Layer** (`assets/models/`)
+   - MLC model files and configurations
+   - Tokenizer and parameter files
+
+## 🛠️ Installation
+
+### 1. Clone Repository
 ```bash
 git clone <repository-url>
 cd offline_ai_companion
 ```
 
-#### **2. Install Flutter Dependencies**
+### 2. Set Up Python Environment
 ```bash
+# Create conda environment with exact Python version
+conda create -n mlc python=3.10.18.0
+conda activate mlc
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Verify installation
+python -c "import mlc_llm; print('✅ MLC-LLM installed successfully!')"
+```
+
+### 3. Set Up Flutter Environment
+```bash
+# Install Flutter dependencies
 flutter pub get
+
+# Verify Flutter setup
+flutter doctor
 ```
 
-#### **3. Platform-Specific Setup**
-
-**For Android:**
+### 4. Set Up Android Development
 ```bash
-# No additional setup required - all native dependencies are included
-flutter run
+# Install Android SDK and NDK
+# Set ANDROID_HOME and ANDROID_NDK_HOME environment variables
+
+# Verify Android setup
+flutter doctor --android-licenses
 ```
 
-**For iOS:**
+## 🔨 Building APK
+
+### Development Build
 ```bash
-cd ios
-pod install
-cd ..
-flutter run
+# Clean previous builds
+flutter clean
+
+# Get dependencies
+flutter pub get
+
+# Build debug APK
+flutter build apk --debug
 ```
 
-**For macOS:**
+### Release Build
 ```bash
-cd macos
-pod install
-cd ..
-flutter run
+# Clean and build release APK
+flutter clean
+flutter pub get
+flutter build apk --release
+
+# APK will be generated at:
+# build/app/outputs/flutter-apk/app-release.apk
 ```
 
-#### **4. Add AI Models**
-
-Create the models directory and add your AI models:
-
+### Build with Specific Architecture
 ```bash
-# Create models directory
-mkdir -p assets/models/
-
-# Download MLC-LLM models (recommended)
-cd assets/models/
-wget https://huggingface.co/mlc-ai/Llama-3.2-1B-Instruct-q4f16_0-MLC/resolve/main/Llama-3.2-1B-Instruct-q4f16_0-MLC.zip
-unzip Llama-3.2-1B-Instruct-q4f16_0-MLC.zip
-
-
-
-#### **5. Run the App**
-```bash
-flutter run
+# Build for ARM64 only (recommended for MLC-LLM)
+flutter build apk --release --target-platform android-arm64
 ```
 
-## 🏗️ Project Structure
+## 📁 Project Structure
 
 ```
 offline_ai_companion/
-├── lib/
-│   ├── main.dart                    # App entry point
+├── android/                          # Android-specific code
+│   ├── app/
+│   │   ├── build.gradle.kts         # Android build configuration
+│   │   └── src/main/
+│   │       ├── cpp/                 # Native C++ code
+│   │       │   ├── mlc_tvm_wrapper.cpp  # MLC-LLM C++ wrapper
+│   │       │   ├── CMakeLists.txt   # CMake build configuration
+│   │       │   └── libs/            # Native library directory
+│   │       └── AndroidManifest.xml  # Android app manifest
+│   └── build.gradle.kts             # Root Android build file
+├── assets/                           # App assets
+│   ├── models/                      # MLC model files
+│   │   ├── mlc-chat-config.json    # MLC chat configuration
+│   │   ├── tokenizer.json          # Tokenizer configuration
+│   │   └── params_shard_*.bin      # Model parameter files
+│   └── mlc-app-config.json         # MLC app configuration
+├── lib/                             # Flutter Dart code
 │   ├── models/                      # Data models
-│   │   ├── ai_model.dart           # AI model definitions
-│   │   ├── chat_message.dart       # Chat message structures
-│   │   ├── chat_session.dart       # Chat session management
-│   │   └── mlc_model.dart          # MLC-LLM model definitions
+│   │   ├── ai_model.dart           # AI model data structure
+│   │   ├── chat_message.dart       # Chat message model
+│   │   └── mlc_model.dart          # MLC-specific model
 │   ├── providers/                   # State management
-│   │   ├── ai_model_provider.dart  # AI model state
-│   │   ├── chat_provider.dart      # Chat state management
-│   │   ├── mlc_model_provider.dart # MLC model state
-│   │   └── settings_provider.dart  # App settings state
+│   │   ├── ai_model_provider.dart  # AI model state provider
+│   │   ├── chat_provider.dart      # Chat state provider
+│   │   └── mlc_model_provider.dart # MLC model provider
 │   ├── screens/                     # UI screens
-│   │   ├── home_screen.dart        # Main navigation
-│   │   ├── chat_screen.dart        # Chat interface
-│   │   ├── models_screen.dart      # Model selection
-│   │   └── settings_screen.dart    # Settings interface
+│   │   ├── chat_screen.dart        # Main chat interface
+│   │   ├── home_screen.dart        # Home screen
+│   │   ├── models_screen.dart      # Model selection screen
+│   │   └── settings_screen.dart    # Settings screen
 │   ├── services/                    # Business logic
-│   │   ├── ai_service.dart         # AI service interface
-│   │   ├── chat_service.dart       # Chat management
-│   │   ├── mlc_service.dart        # MLC-LLM integration
-│   │   ├── mlc_ai_service.dart     # Enhanced AI service
-│   │   └── model_service.dart      # Model management
+│   │   ├── mlc_ai_service.dart     # MLC AI service
+│   │   ├── mlc_service.dart        # MLC service implementation
+│   │   └── model_service.dart      # Model management service
 │   ├── widgets/                     # Reusable UI components
 │   │   ├── chat_input.dart         # Chat input widget
-│   │   ├── message_bubble.dart     # Message display
-│   │   ├── model_card.dart         # Model selection cards
-│   │   ├── model_loading_progress.dart # Loading indicators
-│   │   ├── model_status_indicator.dart # Status indicators
-│   │   ├── session_drawer.dart     # Session management
-│   │   └── twinkling_bot.dart      # Animated bot icon
-│   └── utils/                       # Utilities
-│       └── theme.dart              # App theming
-├── android/                         # Android-specific code
-│   └── app/
-│       └── src/main/
-│           ├── java/               # Java/Kotlin code
-│           ├── cpp/                # Native C++ code
-│           └── assets/             # Model files
-├── ios/                            # iOS-specific code
-├── assets/                         # App assets
-│   ├── models/                     # AI model files
-│   └── mlc-app-config.json        # MLC configuration
+│   │   ├── message_bubble.dart     # Message display widget
+│   │   └── model_card.dart         # Model selection card
+│   └── main.dart                    # App entry point
+├── requirements.txt                 # Python dependencies
+├── DEVELOPMENT_SETUP.md            # Development setup guide
 ├── pubspec.yaml                    # Flutter dependencies
-└── README.md                      # This file
+└── README.md                       # This file
 ```
 
-## 🔧 Configuration
+## 💻 Development
 
-### **Model Settings**
-
-The app supports various AI model parameters:
-
-```dart
-// Example model configuration
-AIModel(
-  id: 'llama-3.2-1b',
-  name: 'Llama 3.2 1B',
-  description: 'Fast and efficient 1B parameter model',
-  version: '1.0',
-  filePath: 'assets/models/Llama-3.2-1B-Instruct-q4f16_0-MLC',
-  parameters: 1000000000,
-  format: 'MLC',
-  // Model-specific settings
-  temperature: 0.7,        // Creativity (0.0 - 2.0)
-  maxTokens: 2048,         // Max response length
-  topP: 0.9,              // Nucleus sampling
-  topK: 40,               // Top-k sampling
-  repetitionPenalty: 1.1, // Prevent repetition
-)
-```
-
-### **Performance Settings**
-
-```dart
-// Performance optimization settings
-SettingsProvider settings = Provider.of<SettingsProvider>(context);
-
-// Enable GPU acceleration
-settings.setUseGPU(true);
-
-// Enable Metal acceleration (iOS/macOS)
-settings.setUseMetal(true);
-
-// Background processing
-settings.setAllowBackgroundProcessing(true);
-
-// Memory management
-settings.setAutoUnloadModels(true);
-```
-
-## 🚀 Usage Guide
-
-### **Getting Started**
-
-1. **Launch the App**: Open the app on your device
-2. **Select a Model**: Choose from available AI models
-3. **Start Chatting**: Begin a conversation with the AI
-4. **Customize Settings**: Adjust model parameters as needed
-
-### **Model Selection**
-
-The app supports multiple model formats:
-
-#### **MLC-LLM Models (Recommended)**
-- **Llama 3.2 1B**: Fast, efficient 1B parameter model
-- **Qwen2.5 0.5B**: Ultra-fast 0.5B parameter model
-- **TinyLlama 1.1B**: Balanced performance and quality
-
-#### **GGUF Models (Fallback)**
-- **Phi-2**: Microsoft's 2.7B parameter model
-- **Mistral 7B**: High-quality 7B parameter model
-- **Custom Models**: Any GGUF format model
-
-### **Chat Features**
-
-- **Real-time Responses**: See AI responses as they're generated
-- **Session Management**: Organize conversations into sessions
-- **Message History**: Persistent chat history
-- **Export Functionality**: Backup your conversations
-- **Markdown Support**: Rich text formatting in responses
-
-## 🔒 Privacy & Security
-
-### **Data Storage**
-- **Local Only**: All data stored on your device
-- **No Cloud Sync**: No external data transmission
-- **Encrypted Storage**: Sensitive data encrypted at rest
-- **Automatic Cleanup**: Old data automatically removed
-
-### **Permissions Required**
-- **Storage**: For model files and chat history
-- **Notifications**: Optional for AI response alerts
-- **No Network**: App doesn't require internet access
-
-## 📱 Platform Support
-
-### **Android** (Primary Target)
-- **Minimum Version**: Android 8.0 (API 26)+
-- **Target Version**: Android 15 (API 35)
-- **Features**: Optimized for Android devices
-- **GPU Support**: OpenCL/Vulkan acceleration via MLC-LLM
-- **Permissions**: Storage, notifications
-- **Architecture**: ARM64-v8a only (optimized for modern devices)
-
-### **Development Environment**
-- **macOS**: macOS 10.14+ (for development)
-- **Windows**: Windows 10+ (for development)
-- **Linux**: Ubuntu 18.04+ (for development)
-
-## 🛠️ Development
-
-### **Adding New Models**
-
-1. **Update Model Definitions**:
-```dart
-// In lib/models/mlc_model.dart
-static const List<MLCModel> _predefinedModels = [
-  // Add your new model here
-  MLCModel(
-    id: 'your-model-id',
-    name: 'Your Model Name',
-    description: 'Model description',
-    version: '1.0',
-    filePath: 'assets/models/your-model',
-    parameters: 1000000000,
-    format: 'MLC',
-  ),
-];
-```
-
-2. **Add Model File**:
-   - Place your model file in `assets/models/`
-   - Update `pubspec.yaml` if needed
-
-### **Customizing UI**
-
-1. **Theme Configuration**:
-```dart
-// In lib/utils/theme.dart
-class AppTheme {
-  static const Color primaryColor = Color(0xFF6366F1);
-  // Customize colors and styles
-}
-```
-
-2. **Adding New Screens**:
-   - Create new screen in `lib/screens/`
-   - Add to navigation in `lib/screens/home_screen.dart`
-
-### **Building for Production**
-
+### Running in Development Mode
 ```bash
-# Android APK (Debug)
-flutter build apk --debug
+# Start Flutter app in debug mode
+flutter run
 
-# Android APK (Release)
-flutter build apk --release
+# Run with specific device
+flutter run -d <device-id>
 
-# Android App Bundle (for Play Store)
-flutter build appbundle --release
-
-# Check build size
-ls -lh build/app/outputs/flutter-apk/
+# Hot reload during development
+# Press 'r' in terminal or save files in IDE
 ```
 
-## 🚀 Performance Optimization
+### Testing MLC-LLM Integration
+```bash
+# Activate Python environment
+conda activate mlc
 
-### **Model Selection Tips**
-- **Small Models (0.5B-1B)**: Fast responses, lower quality
-- **Medium Models (1B-3B)**: Balanced performance and quality
-- **Large Models (7B+)**: High quality, slower responses
+# Test MLC-LLM functionality
+python -c "
+import mlc_llm
+from mlc_llm import MLCEngine
+print('✅ MLC-LLM integration working!')
+print(f'Version: {mlc_llm.__version__}')
+"
+```
 
-### **Device Requirements**
-- **RAM**: 4GB+ recommended for larger models
-- **Storage**: 2GB+ for model files
-- **Processor**: Modern multi-core processor
-- **GPU**: Optional but recommended for acceleration
+### Code Structure Guidelines
 
-### **Optimization Settings**
-1. **Enable GPU Acceleration**: Use device GPU for faster inference
-2. **Background Processing**: Allow AI processing in background
-3. **Memory Management**: Automatic model unloading
-4. **Storage Optimization**: Efficient model caching
+1. **Models** (`lib/models/`): Data structures and serialization
+2. **Providers** (`lib/providers/`): State management with Provider pattern
+3. **Services** (`lib/services/`): Business logic and external integrations
+4. **Screens** (`lib/screens/`): UI screens and navigation
+5. **Widgets** (`lib/widgets/`): Reusable UI components
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### 1. MLC-LLM Import Errors
+```bash
+# Error: cannot import name 'register_global_func'
+# Solution: Compatibility fixes are already applied
+# Check if symlinks exist:
+ls -la /path/to/conda/envs/mlc/lib/libmlc_llm.dylib
+```
+
+#### 2. Build Failures
+```bash
+# Error: CMake not found
+# Solution: Install CMake
+conda install cmake
+
+# Error: NDK not found
+# Solution: Install Android NDK and set ANDROID_NDK_HOME
+```
+
+#### 3. Flutter Build Issues
+```bash
+# Error: Gradle build failed
+# Solution: Clean and rebuild
+flutter clean
+flutter pub get
+flutter build apk --debug
+```
+
+#### 4. Model Loading Issues
+```bash
+# Error: Model files not found
+# Solution: Verify model files in assets/models/
+ls -la assets/models/
+```
+
+### Debug Commands
+```bash
+# Check Flutter environment
+flutter doctor -v
+
+# Check Android setup
+flutter doctor --android-licenses
+
+# Check Python environment
+conda list | grep -E "(mlc|tvm)"
+
+# Check native libraries
+ls -la android/app/src/main/cpp/libs/
+```
+
+## 📝 Version Information
+
+### Current Versions
+- **Flutter**: 3.16.0
+- **Dart**: 3.2.0
+- **Python**: 3.10.0
+- **MLC-LLM**: 0.20.0.dev0
+- **Apache TVM**: 0.10.0
+- **Apache TVM FFI**: 0.1.0b4
+- **Android SDK**: API Level 34
+- **Android NDK**: r25c
+
+### Compatibility Matrix
+| Component | Min Version | Recommended | Max Version |
+|-----------|-------------|-------------|-------------|
+| Flutter   | 3.0.0       | 3.16.0      | 3.20.0      |
+| Python    | 3.10.0      | 3.10.0      | 3.11.0      |
+| Android   | API 21      | API 34      | API 35      |
+| NDK       | r21e        | r25c        | r26b        |
 
 ## 🤝 Contributing
 
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes**: Follow Flutter best practices
-4. **Add tests**: If applicable, add unit or widget tests
-5. **Submit a pull request**: With detailed description
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Set up development environment following this README
+4. Make your changes
+5. Test thoroughly with MLC-LLM integration
+6. Commit your changes: `git commit -m 'Add amazing feature'`
+7. Push to the branch: `git push origin feature/amazing-feature`
+8. Open a Pull Request
 
-### **Development Guidelines**
-- Follow Flutter best practices and conventions
-- Use meaningful commit messages
-- Test on multiple platforms
-- Document new features
-- Maintain code quality with `flutter analyze`
+### Code Style
+- Follow Flutter/Dart style guidelines
+- Use Provider pattern for state management
+- Add comments for complex MLC-LLM integrations
+- Test MLC-LLM functionality before submitting PR
 
 ## 📄 License
 
@@ -645,45 +436,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **MLC-LLM Team**: For the high-performance inference framework
-- **llama.cpp Team**: For the efficient model inference library
-- **Flutter Team**: For the amazing cross-platform framework
-- **Model Creators**: For providing open-source AI models
-- **Community**: For feedback, contributions, and support
+- [MLC-LLM](https://github.com/mlc-ai/mlc-llm) - Machine Learning Compilation for Large Language Models
+- [Apache TVM](https://github.com/apache/tvm) - Tensor Virtual Machine
+- [Flutter](https://flutter.dev/) - UI toolkit for building natively compiled applications
 
-## 📞 Support & Community
+## 📞 Support
 
-- **Issues**: Report bugs on [GitHub Issues](https://github.com/your-repo/issues)
-- **Discussions**: Join community discussions
-- **Documentation**: Check the wiki for detailed guides
-- **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
-
-## 🔮 Roadmap
-
-### **Upcoming Features**
-- [ ] Voice input/output support
-- [ ] Image generation capabilities
-- [ ] Multi-language support
-- [ ] Advanced model fine-tuning
-- [ ] Cloud backup (optional)
-- [ ] Plugin system for extensions
-- [ ] Collaborative chat sessions
-
-### **Performance Improvements**
-- [ ] Optimized model loading
-- [ ] Better memory management
-- [ ] Faster inference algorithms
-- [ ] Reduced battery usage
-- [ ] Improved GPU utilization
-
-### **Platform Expansion**
-- [ ] Web support
-- [ ] Linux desktop
-- [ ] Windows desktop
-- [ ] Wearable device support
+For issues and questions:
+1. Check the [Troubleshooting](#troubleshooting) section
+2. Review [DEVELOPMENT_SETUP.md](DEVELOPMENT_SETUP.md)
+3. Open an issue on GitHub
+4. Check MLC-LLM documentation for model-specific issues
 
 ---
 
-**Made with ❤️ for privacy-conscious AI users**
-
-*This app ensures your conversations stay private and secure by running entirely on your device without any cloud dependencies.*
+**Note**: This app requires MLC model files to function. Ensure you have the appropriate model files in the `assets/models/` directory before building.

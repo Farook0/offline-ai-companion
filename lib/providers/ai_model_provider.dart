@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:offline_ai_companion/models/ai_model.dart';
 import 'package:offline_ai_companion/services/model_service.dart';
-import 'package:offline_ai_companion/services/android_llama_plugin.dart';
+import 'package:offline_ai_companion/services/android_mlc_plugin.dart';
 
 class AIModelProvider with ChangeNotifier {
   AIModel? _selectedModel;

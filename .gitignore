@@ -149,3 +149,11 @@ coverage/
 # Temporary files created by Flutter
 .flutter-plugins-dependencies
 .flutter-plugins
+
+# Conda environments (large and system-specific)
+.conda/
+conda-meta/
+envs/
+mlc/
+anaconda3/
+miniconda3/

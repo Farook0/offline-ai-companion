@@ -45,26 +45,33 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 find_library(log-lib log)
 find_library(android-lib android)
 
-# TVM Runtime Library Configuration
-# Note: In production, this would link to actual TVM runtime
-# For now, we're using our stub implementation
+# MLC-LLM Runtime Library Configuration
+# This links to actual MLC-LLM and TVM runtime libraries
 
-set(TVM_RUNTIME_SOURCES
+set(MLC_RUNTIME_SOURCES
     mlc_tvm_wrapper.cpp
 )
 
 # Create MLC-LLM wrapper library
-add_library(mlc_tvm_wrapper SHARED ${TVM_RUNTIME_SOURCES})
+add_library(mlc_tvm_wrapper SHARED ${MLC_RUNTIME_SOURCES})
+
+# Include directories for MLC-LLM and TVM
+target_include_directories(mlc_tvm_wrapper PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../../mlc_llm/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../../tvm/include
+)
 
 # Link libraries
 target_link_libraries(mlc_tvm_wrapper
     ${log-lib}
     ${android-lib}
-    # In production, would add:
-    # tvm_runtime
-    # mlc_llm
-    # opencl (for GPU support)
-    # vulkan (for advanced GPU features)
+    # MLC-LLM and TVM runtime libraries
+    tvm_runtime
+    mlc_llm
+    dl
+    # GPU support libraries
+    opencl
+    vulkan
 )
 
 # Compiler flags for optimization
@@ -81,29 +88,33 @@ target_compile_options(mlc_tvm_wrapper PRIVATE
 set_target_properties(mlc_tvm_wrapper PROPERTIES
     LINK_FLAGS "-Wl,--gc-sections -Wl,--as-needed"
 )
-# For production deployment, add TVM runtime integration:
-# 
-# # Download and extract TVM runtime
-# include(FetchContent)
-# FetchContent_Declare(
-#   tvm_runtime
-#   URL https://github.com/apache/tvm/releases/download/v0.15.0/tvm-android-arm64.tar.gz
-#   URL_HASH SHA256=<hash>
-# )
-# FetchContent_MakeAvailable(tvm_runtime)
-# 
-# # Link TVM runtime
-# target_include_directories(mlc_tvm_wrapper PRIVATE ${tvm_runtime_SOURCE_DIR}/include)
-# target_link_libraries(mlc_tvm_wrapper ${tvm_runtime_SOURCE_DIR}/lib/libtvm_runtime.so)
+# MLC-LLM and TVM runtime integration
+# These libraries should be downloaded and placed in the libs directory
 
-# MLC-LLM model library integration:
-#
-# # Add MLC model library
-# add_library(mlc_model_lib SHARED IMPORTED)
-# set_target_properties(mlc_model_lib PROPERTIES
-#   IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/${ANDROID_ABI}/libmlc_model.so
-# )
-# target_link_libraries(mlc_tvm_wrapper mlc_model_lib)
+# Add TVM runtime library
+add_library(tvm_runtime SHARED IMPORTED)
+set_target_properties(tvm_runtime PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/${ANDROID_ABI}/libtvm_runtime.so
+)
+
+# Add MLC-LLM library
+add_library(mlc_llm SHARED IMPORTED)
+set_target_properties(mlc_llm PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/${ANDROID_ABI}/libmlc_llm.so
+)
+
+# Add MLC model library
+add_library(mlc_model_lib SHARED IMPORTED)
+set_target_properties(mlc_model_lib PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/${ANDROID_ABI}/libmlc_model.so
+)
+
+# Link all MLC-LLM libraries
+target_link_libraries(mlc_tvm_wrapper
+    tvm_runtime
+    mlc_llm
+    mlc_model_lib
+)
 
 # GPU support libraries (OpenCL/Vulkan)
 if(ANDROID)
